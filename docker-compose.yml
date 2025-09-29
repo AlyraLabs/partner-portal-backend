@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: alyra-partner-portal
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - partner-portal-network
+
+  # NestJS API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: partner-portal-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3000}
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password123}
+      - DB_NAME=${DB_NAME:-partner_portal}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_FROM_EMAIL=${MAILGUN_FROM_EMAIL}
+      - MAILGUN_FROM_NAME=${MAILGUN_FROM_NAME}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3001}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3001}
+      - CORS_CREDENTIALS=${CORS_CREDENTIALS:-true}
+    ports:
+      - "${API_PORT}:${PORT}"
+    volumes:
+      # Mount email templates
+      - ./src/email/templates:/app/src/email/templates:ro
+    networks:
+      - partner-portal-network
+
+  # # Redis (optional, for future caching/sessions)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: partner-portal-redis
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis_data:/data
+  #   ports:
+  #     - "${REDIS_PORT:-6379}:6379"
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - partner-portal-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  partner-portal-network:
+    driver: bridge
