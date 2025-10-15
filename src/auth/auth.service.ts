@@ -28,7 +28,7 @@ export class AuthService {
   async register(
     registerDto: RegisterDto,
   ): Promise<{ user: UserResponse; accessToken: string }> {
-    const { email, password, firstName, lastName } = registerDto;
+    const { email, password } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.userRepository.findOne({
@@ -42,11 +42,14 @@ export class AuthService {
     const user = this.userRepository.create({
       email,
       password,
-      firstName,
-      lastName,
     });
 
     const savedUser = await this.userRepository.save(user);
+
+    this.emailService.sendWelcomeEmail(savedUser.email).catch((error) => {
+      this.logger.error('Failed to send welcome email:', error);
+    });
+
     const { password: _, ...userWithoutPassword } = savedUser;
 
     // Generate JWT token
@@ -135,7 +138,6 @@ export class AuthService {
     const emailSent = await this.emailService.sendPasswordResetEmail(
       user.email,
       token,
-      `${user.firstName} ${user.lastName}`
     );
 
     if (!emailSent) {
@@ -179,7 +181,6 @@ export class AuthService {
       // Send confirmation email
       await this.emailService.sendPasswordResetConfirmationEmail(
         user.email,
-        `${user.firstName} ${user.lastName}`
       );
 
       this.logger.log(`Password reset completed for user ${user.email}`);

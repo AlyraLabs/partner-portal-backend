@@ -68,12 +68,11 @@ export class EmailService {
   async sendPasswordResetEmail(
     email: string,
     resetToken: string,
-    userName: string,
   ): Promise<boolean> {
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
     const html = await this.templateService.renderTemplate('password-reset', {
-      userName,
+      email,
       resetUrl,
     });
 
@@ -84,20 +83,29 @@ export class EmailService {
     });
   }
 
-  async sendPasswordResetConfirmationEmail(
-    email: string,
-    userName: string,
-  ): Promise<boolean> {
+  async sendPasswordResetConfirmationEmail(email: string): Promise<boolean> {
     const html = await this.templateService.renderTemplate(
       'password-reset-confirmation',
       {
-        userName,
+        email,
       },
     );
 
     return this.sendEmail({
       to: email,
       subject: 'Password Reset Successful - Partner Portal',
+      html,
+    });
+  }
+
+  async sendWelcomeEmail(email: string): Promise<boolean> {
+    const html = await this.templateService.renderTemplate('welcome', {
+      email,
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: 'Welcome to Alyra Partner Portal!',
       html,
     });
   }

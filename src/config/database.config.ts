@@ -1,5 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppConfigService } from './config.service';
+import { User } from '../entities/user.entity';
+import { Integration } from '../entities/integration.entity';
 
 export const createDatabaseConfig = (
   configService: AppConfigService,
@@ -10,7 +12,7 @@ export const createDatabaseConfig = (
   username: configService.database.username,
   password: configService.database.password,
   database: configService.database.database,
-  entities: ['dist/entities/*.js'],
+  entities: [User, Integration],
   migrations: ['dist/migrations/*.js'],
   migrationsTableName: 'typeorm_migrations',
   synchronize: false,
