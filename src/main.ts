@@ -17,8 +17,8 @@ async function bootstrap() {
 
   // Enable CORS with configuration
   app.enableCors({
-    origin: configService.app.cors.origin,
-    credentials: configService.app.cors.credentials,
+    origin: true, // Allow all origins in development
+    credentials: true,
   });
 
   await app.listen(configService.app.port);

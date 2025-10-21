@@ -16,14 +16,8 @@ export class Integration {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  name: string;
-
-  @Column({ nullable: true })
-  url?: string;
-
-  @Column({ unique: true })
-  uniqueString: string;
+  @Column({ length: 50, unique: true })
+  string: string;
 
   @Column({ unique: true })
   apiKey: string;

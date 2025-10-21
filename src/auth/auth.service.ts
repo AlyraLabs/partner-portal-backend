@@ -169,7 +169,9 @@ export class AuthService {
       }
 
       // Find user
-      const user = await this.userRepository.findOne({ where: { id: decoded.sub } });
+      const user = await this.userRepository.findOne({
+        where: { id: decoded.sub },
+      });
       if (!user || user.email !== decoded.email) {
         throw new BadRequestException('Invalid reset token.');
       }
@@ -179,9 +181,7 @@ export class AuthService {
       await this.userRepository.save(user);
 
       // Send confirmation email
-      await this.emailService.sendPasswordResetConfirmationEmail(
-        user.email,
-      );
+      await this.emailService.sendPasswordResetConfirmationEmail(user.email);
 
       this.logger.log(`Password reset completed for user ${user.email}`);
 

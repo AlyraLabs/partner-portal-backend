@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import { IntegrationsService } from './integrations.service';
 import { CreateIntegrationDto } from './dto/create-integration.dto';
-import { UpdateIntegrationDto } from './dto/update-integration.dto';
+// import { UpdateIntegrationDto } from './dto/update-integration.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthRequest } from '../auth/interfaces/auth-request.interface';
 
 @Controller('integrations')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class IntegrationsController {
   constructor(private readonly integrationsService: IntegrationsService) {}
 
@@ -34,18 +34,18 @@ export class IntegrationsController {
     return this.integrationsService.findAll(req.user.id);
   }
 
-  @Patch(':id')
-  async update(
-    @Request() req: AuthRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateIntegrationDto: UpdateIntegrationDto,
-  ) {
-    return this.integrationsService.update(
-      req.user.id,
-      id,
-      updateIntegrationDto,
-    );
-  }
+  // @Patch(':id')
+  // async update(
+  //   @Request() req: AuthRequest,
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() updateIntegrationDto: UpdateIntegrationDto,
+  // ) {
+  //   return this.integrationsService.update(
+  //     req.user.id,
+  //     id,
+  //     updateIntegrationDto,
+  //   );
+  // }
 
   @Delete(':id')
   async remove(
