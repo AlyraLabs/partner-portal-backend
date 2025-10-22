@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: partner-portal-backend
+    env: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    dockerfilePath: ./Dockerfile.render
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DB_HOST
+        fromDatabase:
+          name: partner-portal-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: partner-portal-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: partner-portal-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: partner-portal-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: partner-portal-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: MAILGUN_API_KEY
+        sync: false
+      - key: MAILGUN_DOMAIN
+        sync: false
+      - key: MAILGUN_FROM_EMAIL
+        sync: false
+      - key: MAILGUN_FROM_NAME
+        value: Partner Portal
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: CORS_CREDENTIALS
+        value: true
+
+databases:
+  - name: partner-portal-db
+    plan: starter
+    databaseName: partner_portal
+    user: partner_portal_user
