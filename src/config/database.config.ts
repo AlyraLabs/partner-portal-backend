@@ -13,7 +13,7 @@ export const createDatabaseConfig = (
   password: configService.database.password,
   database: configService.database.database,
   entities: [User, Integration],
-  migrations: ['dist/migrations/*.js'],
+  migrations: ['dist/src/migrations/*.js'],
   migrationsTableName: 'typeorm_migrations',
   synchronize: false,
   logging: configService.database.logging,

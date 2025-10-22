@@ -2,11 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/config.service';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
   const configService = app.get(AppConfigService);
+  
+  // Run migrations on startup
+  const dataSource = app.get(DataSource);
+  await dataSource.runMigrations();
   
   // Enable global validation
   app.useGlobalPipes(new ValidationPipe({
